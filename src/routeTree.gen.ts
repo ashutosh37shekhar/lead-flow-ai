@@ -15,9 +15,19 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as FeaturesRouteImport } from './routes/features'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as DashboardTeamRouteImport } from './routes/dashboard.team'
+import { Route as DashboardSettingsRouteImport } from './routes/dashboard.settings'
+import { Route as DashboardPipelineRouteImport } from './routes/dashboard.pipeline'
+import { Route as DashboardMetaRouteImport } from './routes/dashboard.meta'
+import { Route as DashboardLeadsRouteImport } from './routes/dashboard.leads'
+import { Route as DashboardFollowupsRouteImport } from './routes/dashboard.followups'
+import { Route as DashboardAutomationsRouteImport } from './routes/dashboard.automations'
+import { Route as DashboardAnalyticsRouteImport } from './routes/dashboard.analytics'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -49,6 +59,11 @@ const FeaturesRoute = FeaturesRouteImport.update({
   path: '/features',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
@@ -64,17 +79,72 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardTeamRoute = DashboardTeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardPipelineRoute = DashboardPipelineRouteImport.update({
+  id: '/pipeline',
+  path: '/pipeline',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardMetaRoute = DashboardMetaRouteImport.update({
+  id: '/meta',
+  path: '/meta',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardLeadsRoute = DashboardLeadsRouteImport.update({
+  id: '/leads',
+  path: '/leads',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardFollowupsRoute = DashboardFollowupsRouteImport.update({
+  id: '/followups',
+  path: '/followups',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardAutomationsRoute = DashboardAutomationsRouteImport.update({
+  id: '/automations',
+  path: '/automations',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardAnalyticsRoute = DashboardAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => DashboardRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/features': typeof FeaturesRoute
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/dashboard/analytics': typeof DashboardAnalyticsRoute
+  '/dashboard/automations': typeof DashboardAutomationsRoute
+  '/dashboard/followups': typeof DashboardFollowupsRoute
+  '/dashboard/leads': typeof DashboardLeadsRoute
+  '/dashboard/meta': typeof DashboardMetaRoute
+  '/dashboard/pipeline': typeof DashboardPipelineRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
+  '/dashboard/team': typeof DashboardTeamRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -86,18 +156,37 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/dashboard/analytics': typeof DashboardAnalyticsRoute
+  '/dashboard/automations': typeof DashboardAutomationsRoute
+  '/dashboard/followups': typeof DashboardFollowupsRoute
+  '/dashboard/leads': typeof DashboardLeadsRoute
+  '/dashboard/meta': typeof DashboardMetaRoute
+  '/dashboard/pipeline': typeof DashboardPipelineRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
+  '/dashboard/team': typeof DashboardTeamRoute
+  '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/features': typeof FeaturesRoute
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/dashboard/analytics': typeof DashboardAnalyticsRoute
+  '/dashboard/automations': typeof DashboardAutomationsRoute
+  '/dashboard/followups': typeof DashboardFollowupsRoute
+  '/dashboard/leads': typeof DashboardLeadsRoute
+  '/dashboard/meta': typeof DashboardMetaRoute
+  '/dashboard/pipeline': typeof DashboardPipelineRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
+  '/dashboard/team': typeof DashboardTeamRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -105,12 +194,22 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/contact'
+    | '/dashboard'
     | '/features'
     | '/login'
     | '/pricing'
     | '/privacy'
     | '/signup'
     | '/terms'
+    | '/dashboard/analytics'
+    | '/dashboard/automations'
+    | '/dashboard/followups'
+    | '/dashboard/leads'
+    | '/dashboard/meta'
+    | '/dashboard/pipeline'
+    | '/dashboard/settings'
+    | '/dashboard/team'
+    | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -122,23 +221,43 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/signup'
     | '/terms'
+    | '/dashboard/analytics'
+    | '/dashboard/automations'
+    | '/dashboard/followups'
+    | '/dashboard/leads'
+    | '/dashboard/meta'
+    | '/dashboard/pipeline'
+    | '/dashboard/settings'
+    | '/dashboard/team'
+    | '/dashboard'
   id:
     | '__root__'
     | '/'
     | '/about'
     | '/contact'
+    | '/dashboard'
     | '/features'
     | '/login'
     | '/pricing'
     | '/privacy'
     | '/signup'
     | '/terms'
+    | '/dashboard/analytics'
+    | '/dashboard/automations'
+    | '/dashboard/followups'
+    | '/dashboard/leads'
+    | '/dashboard/meta'
+    | '/dashboard/pipeline'
+    | '/dashboard/settings'
+    | '/dashboard/team'
+    | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
   FeaturesRoute: typeof FeaturesRoute
   LoginRoute: typeof LoginRoute
   PricingRoute: typeof PricingRoute
@@ -191,6 +310,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FeaturesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contact': {
       id: '/contact'
       path: '/contact'
@@ -212,13 +338,105 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/team': {
+      id: '/dashboard/team'
+      path: '/team'
+      fullPath: '/dashboard/team'
+      preLoaderRoute: typeof DashboardTeamRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/settings': {
+      id: '/dashboard/settings'
+      path: '/settings'
+      fullPath: '/dashboard/settings'
+      preLoaderRoute: typeof DashboardSettingsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/pipeline': {
+      id: '/dashboard/pipeline'
+      path: '/pipeline'
+      fullPath: '/dashboard/pipeline'
+      preLoaderRoute: typeof DashboardPipelineRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/meta': {
+      id: '/dashboard/meta'
+      path: '/meta'
+      fullPath: '/dashboard/meta'
+      preLoaderRoute: typeof DashboardMetaRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/leads': {
+      id: '/dashboard/leads'
+      path: '/leads'
+      fullPath: '/dashboard/leads'
+      preLoaderRoute: typeof DashboardLeadsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/followups': {
+      id: '/dashboard/followups'
+      path: '/followups'
+      fullPath: '/dashboard/followups'
+      preLoaderRoute: typeof DashboardFollowupsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/automations': {
+      id: '/dashboard/automations'
+      path: '/automations'
+      fullPath: '/dashboard/automations'
+      preLoaderRoute: typeof DashboardAutomationsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/analytics': {
+      id: '/dashboard/analytics'
+      path: '/analytics'
+      fullPath: '/dashboard/analytics'
+      preLoaderRoute: typeof DashboardAnalyticsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
+
+interface DashboardRouteChildren {
+  DashboardAnalyticsRoute: typeof DashboardAnalyticsRoute
+  DashboardAutomationsRoute: typeof DashboardAutomationsRoute
+  DashboardFollowupsRoute: typeof DashboardFollowupsRoute
+  DashboardLeadsRoute: typeof DashboardLeadsRoute
+  DashboardMetaRoute: typeof DashboardMetaRoute
+  DashboardPipelineRoute: typeof DashboardPipelineRoute
+  DashboardSettingsRoute: typeof DashboardSettingsRoute
+  DashboardTeamRoute: typeof DashboardTeamRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardAnalyticsRoute: DashboardAnalyticsRoute,
+  DashboardAutomationsRoute: DashboardAutomationsRoute,
+  DashboardFollowupsRoute: DashboardFollowupsRoute,
+  DashboardLeadsRoute: DashboardLeadsRoute,
+  DashboardMetaRoute: DashboardMetaRoute,
+  DashboardPipelineRoute: DashboardPipelineRoute,
+  DashboardSettingsRoute: DashboardSettingsRoute,
+  DashboardTeamRoute: DashboardTeamRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
+  DashboardRoute: DashboardRouteWithChildren,
   FeaturesRoute: FeaturesRoute,
   LoginRoute: LoginRoute,
   PricingRoute: PricingRoute,
