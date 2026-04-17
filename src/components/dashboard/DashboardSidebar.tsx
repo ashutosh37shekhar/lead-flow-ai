@@ -1,10 +1,11 @@
-import { Link, useLocation } from "@tanstack/react-router";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import {
   LayoutDashboard, Users, Inbox, KanbanSquare, Bell, CalendarClock,
   Settings, BarChart3, Plug, Bot, UserPlus, Zap, ChevronLeft, ChevronRight, LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
 
 const navItems = [
   { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
@@ -21,6 +22,13 @@ const navItems = [
 export function DashboardSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate({ to: "/login" });
+  };
 
   return (
     <aside
@@ -67,13 +75,13 @@ export function DashboardSidebar() {
           {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           {!collapsed && <span>Collapse</span>}
         </button>
-        <Link
-          to="/login"
+        <button
+          onClick={handleLogout}
           className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/70 hover:bg-sidebar-accent w-full transition-colors"
         >
           <LogOut className="h-4 w-4" />
           {!collapsed && <span>Log out</span>}
-        </Link>
+        </button>
       </div>
     </aside>
   );
