@@ -48,8 +48,10 @@ function SignupPage() {
       toast.error(error.message);
       return;
     }
-    toast.success("Account created! Welcome to Lead Flow AI.");
-    navigate({ to: "/dashboard" });
+    toast.success("Check your email to confirm your account before signing in.", {
+      duration: 6000,
+    });
+    navigate({ to: "/login" });
   };
 
   return (
