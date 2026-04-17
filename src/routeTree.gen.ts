@@ -28,6 +28,8 @@ import { Route as DashboardLeadsRouteImport } from './routes/dashboard.leads'
 import { Route as DashboardFollowupsRouteImport } from './routes/dashboard.followups'
 import { Route as DashboardAutomationsRouteImport } from './routes/dashboard.automations'
 import { Route as DashboardAnalyticsRouteImport } from './routes/dashboard.analytics'
+import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -124,6 +126,16 @@ const DashboardAnalyticsRoute = DashboardAnalyticsRouteImport.update({
   path: '/analytics',
   getParentRoute: () => DashboardRoute,
 } as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminDashboardRoute = AdminDashboardRouteImport.update({
+  id: '/admin/dashboard',
+  path: '/admin/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -136,6 +148,8 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/login': typeof AdminLoginRoute
   '/dashboard/analytics': typeof DashboardAnalyticsRoute
   '/dashboard/automations': typeof DashboardAutomationsRoute
   '/dashboard/followups': typeof DashboardFollowupsRoute
@@ -156,6 +170,8 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/login': typeof AdminLoginRoute
   '/dashboard/analytics': typeof DashboardAnalyticsRoute
   '/dashboard/automations': typeof DashboardAutomationsRoute
   '/dashboard/followups': typeof DashboardFollowupsRoute
@@ -178,6 +194,8 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/login': typeof AdminLoginRoute
   '/dashboard/analytics': typeof DashboardAnalyticsRoute
   '/dashboard/automations': typeof DashboardAutomationsRoute
   '/dashboard/followups': typeof DashboardFollowupsRoute
@@ -201,6 +219,8 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/signup'
     | '/terms'
+    | '/admin/dashboard'
+    | '/admin/login'
     | '/dashboard/analytics'
     | '/dashboard/automations'
     | '/dashboard/followups'
@@ -221,6 +241,8 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/signup'
     | '/terms'
+    | '/admin/dashboard'
+    | '/admin/login'
     | '/dashboard/analytics'
     | '/dashboard/automations'
     | '/dashboard/followups'
@@ -242,6 +264,8 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/signup'
     | '/terms'
+    | '/admin/dashboard'
+    | '/admin/login'
     | '/dashboard/analytics'
     | '/dashboard/automations'
     | '/dashboard/followups'
@@ -264,6 +288,8 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   SignupRoute: typeof SignupRoute
   TermsRoute: typeof TermsRoute
+  AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminLoginRoute: typeof AdminLoginRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -401,6 +427,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardAnalyticsRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/dashboard': {
+      id: '/admin/dashboard'
+      path: '/admin/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -443,7 +483,18 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   SignupRoute: SignupRoute,
   TermsRoute: TermsRoute,
+  AdminDashboardRoute: AdminDashboardRoute,
+  AdminLoginRoute: AdminLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
