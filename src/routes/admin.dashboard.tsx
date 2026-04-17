@@ -115,7 +115,7 @@ function AdminDashboard() {
               <Activity className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-emerald-600">Healthy</div>
+              <div className="text-2xl font-bold text-primary">Healthy</div>
             </CardContent>
           </Card>
         </div>
