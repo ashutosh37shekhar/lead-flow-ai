@@ -2,6 +2,7 @@ import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardTopbar } from "@/components/dashboard/DashboardTopbar";
 import { useAuth } from "@/hooks/useAuth";
+import { WorkspaceProvider } from "@/hooks/useWorkspace";
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
 
@@ -26,14 +27,16 @@ function DashboardLayout() {
   }
 
   return (
-    <div className="flex h-screen w-full overflow-hidden">
-      <DashboardSidebar />
-      <div className="flex flex-col flex-1 min-w-0">
-        <DashboardTopbar />
-        <main className="flex-1 overflow-auto p-6 bg-background">
-          <Outlet />
-        </main>
+    <WorkspaceProvider>
+      <div className="flex h-screen w-full overflow-hidden">
+        <DashboardSidebar />
+        <div className="flex flex-col flex-1 min-w-0">
+          <DashboardTopbar />
+          <main className="flex-1 overflow-auto p-6 bg-background">
+            <Outlet />
+          </main>
+        </div>
       </div>
-    </div>
+    </WorkspaceProvider>
   );
 }

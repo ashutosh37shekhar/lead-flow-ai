@@ -1,7 +1,7 @@
-import { Bell, Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { WorkspaceSwitcher } from "@/components/dashboard/WorkspaceSwitcher";
 
 export function DashboardTopbar() {
   const { user } = useAuth();
@@ -16,10 +16,9 @@ export function DashboardTopbar() {
     : "?";
 
   return (
-    <header className="h-16 border-b border-border bg-card flex items-center justify-between px-6 shrink-0">
-      <div className="flex items-center gap-3 flex-1 max-w-md">
-        <Search className="h-4 w-4 text-muted-foreground" />
-        <Input placeholder="Search leads, contacts..." className="border-0 bg-transparent shadow-none focus-visible:ring-0 h-8" />
+    <header className="h-16 border-b border-border bg-card flex items-center justify-between px-6 shrink-0 gap-4">
+      <div className="flex items-center gap-3">
+        <WorkspaceSwitcher />
       </div>
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" className="relative">
