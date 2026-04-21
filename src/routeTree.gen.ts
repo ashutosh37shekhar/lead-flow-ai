@@ -32,6 +32,9 @@ import { Route as DashboardAnalyticsRouteImport } from './routes/dashboard.analy
 import { Route as DashboardActivityRouteImport } from './routes/dashboard.activity'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
+import { Route as ApiWebhooksWhatsappRouteImport } from './routes/api.webhooks.whatsapp'
+import { Route as ApiWebhooksN8nDispatchRouteImport } from './routes/api.webhooks.n8n-dispatch'
+import { Route as ApiWebhooksMetaRouteImport } from './routes/api.webhooks.meta'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -148,6 +151,21 @@ const AdminDashboardRoute = AdminDashboardRouteImport.update({
   path: '/admin/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiWebhooksWhatsappRoute = ApiWebhooksWhatsappRouteImport.update({
+  id: '/api/webhooks/whatsapp',
+  path: '/api/webhooks/whatsapp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiWebhooksN8nDispatchRoute = ApiWebhooksN8nDispatchRouteImport.update({
+  id: '/api/webhooks/n8n-dispatch',
+  path: '/api/webhooks/n8n-dispatch',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiWebhooksMetaRoute = ApiWebhooksMetaRouteImport.update({
+  id: '/api/webhooks/meta',
+  path: '/api/webhooks/meta',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -173,6 +191,9 @@ export interface FileRoutesByFullPath {
   '/dashboard/team': typeof DashboardTeamRoute
   '/invite/$token': typeof InviteTokenRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/api/webhooks/meta': typeof ApiWebhooksMetaRoute
+  '/api/webhooks/n8n-dispatch': typeof ApiWebhooksN8nDispatchRoute
+  '/api/webhooks/whatsapp': typeof ApiWebhooksWhatsappRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -197,6 +218,9 @@ export interface FileRoutesByTo {
   '/dashboard/team': typeof DashboardTeamRoute
   '/invite/$token': typeof InviteTokenRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/api/webhooks/meta': typeof ApiWebhooksMetaRoute
+  '/api/webhooks/n8n-dispatch': typeof ApiWebhooksN8nDispatchRoute
+  '/api/webhooks/whatsapp': typeof ApiWebhooksWhatsappRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -223,6 +247,9 @@ export interface FileRoutesById {
   '/dashboard/team': typeof DashboardTeamRoute
   '/invite/$token': typeof InviteTokenRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/api/webhooks/meta': typeof ApiWebhooksMetaRoute
+  '/api/webhooks/n8n-dispatch': typeof ApiWebhooksN8nDispatchRoute
+  '/api/webhooks/whatsapp': typeof ApiWebhooksWhatsappRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -250,6 +277,9 @@ export interface FileRouteTypes {
     | '/dashboard/team'
     | '/invite/$token'
     | '/dashboard/'
+    | '/api/webhooks/meta'
+    | '/api/webhooks/n8n-dispatch'
+    | '/api/webhooks/whatsapp'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -274,6 +304,9 @@ export interface FileRouteTypes {
     | '/dashboard/team'
     | '/invite/$token'
     | '/dashboard'
+    | '/api/webhooks/meta'
+    | '/api/webhooks/n8n-dispatch'
+    | '/api/webhooks/whatsapp'
   id:
     | '__root__'
     | '/'
@@ -299,6 +332,9 @@ export interface FileRouteTypes {
     | '/dashboard/team'
     | '/invite/$token'
     | '/dashboard/'
+    | '/api/webhooks/meta'
+    | '/api/webhooks/n8n-dispatch'
+    | '/api/webhooks/whatsapp'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -315,6 +351,9 @@ export interface RootRouteChildren {
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminLoginRoute: typeof AdminLoginRoute
   InviteTokenRoute: typeof InviteTokenRoute
+  ApiWebhooksMetaRoute: typeof ApiWebhooksMetaRoute
+  ApiWebhooksN8nDispatchRoute: typeof ApiWebhooksN8nDispatchRoute
+  ApiWebhooksWhatsappRoute: typeof ApiWebhooksWhatsappRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -480,6 +519,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/webhooks/whatsapp': {
+      id: '/api/webhooks/whatsapp'
+      path: '/api/webhooks/whatsapp'
+      fullPath: '/api/webhooks/whatsapp'
+      preLoaderRoute: typeof ApiWebhooksWhatsappRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/webhooks/n8n-dispatch': {
+      id: '/api/webhooks/n8n-dispatch'
+      path: '/api/webhooks/n8n-dispatch'
+      fullPath: '/api/webhooks/n8n-dispatch'
+      preLoaderRoute: typeof ApiWebhooksN8nDispatchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/webhooks/meta': {
+      id: '/api/webhooks/meta'
+      path: '/api/webhooks/meta'
+      fullPath: '/api/webhooks/meta'
+      preLoaderRoute: typeof ApiWebhooksMetaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -527,6 +587,9 @@ const rootRouteChildren: RootRouteChildren = {
   AdminDashboardRoute: AdminDashboardRoute,
   AdminLoginRoute: AdminLoginRoute,
   InviteTokenRoute: InviteTokenRoute,
+  ApiWebhooksMetaRoute: ApiWebhooksMetaRoute,
+  ApiWebhooksN8nDispatchRoute: ApiWebhooksN8nDispatchRoute,
+  ApiWebhooksWhatsappRoute: ApiWebhooksWhatsappRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
