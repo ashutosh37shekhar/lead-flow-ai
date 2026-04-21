@@ -337,6 +337,40 @@ export function LeadDetailSheet({ leadId, open, onOpenChange, onChanged }: Props
                   </div>
                 </TabsContent>
 
+                <TabsContent value="followups" className="space-y-2 mt-4">
+                  {canEdit && (
+                    <Button size="sm" variant="outline" onClick={() => setFollowupOpen(true)} className="w-full">
+                      <Plus className="h-4 w-4" /> New follow-up
+                    </Button>
+                  )}
+                  {followups.length === 0 && <p className="text-xs text-muted-foreground">No follow-ups</p>}
+                  {followups.map((f) => {
+                    const overdue = isOverdue(f);
+                    return (
+                      <div key={f.id} className={cn(
+                        "flex items-center gap-2 rounded-lg border p-2.5",
+                        overdue && "border-destructive/30 bg-destructive/5",
+                        f.status === "completed" && "opacity-60",
+                      )}>
+                        <CalendarClock className={cn("h-4 w-4 shrink-0", overdue ? "text-destructive" : "text-muted-foreground")} />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm truncate">{f.title}</div>
+                          <div className="text-[10px] text-muted-foreground">
+                            {formatDue(f.due_at)} · {f.type}
+                            {overdue && " · Overdue"}
+                            {f.status === "completed" && " · Done"}
+                          </div>
+                        </div>
+                        {f.status === "pending" && (
+                          <Button size="icon" variant="ghost" onClick={() => handleCompleteFollowup(f.id)}>
+                            <CheckCircle2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </TabsContent>
+
                 <TabsContent value="activity" className="space-y-2 mt-4">
                   {activities.length === 0 && <p className="text-xs text-muted-foreground">No activity</p>}
                   {activities.map((a) => (
