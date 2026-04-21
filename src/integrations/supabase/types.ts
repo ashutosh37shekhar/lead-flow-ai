@@ -62,6 +62,69 @@ export type Database = {
           },
         ]
       }
+      followups: {
+        Row: {
+          assigned_to: string
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          due_at: string
+          id: string
+          lead_id: string | null
+          status: Database["public"]["Enums"]["followup_status"]
+          title: string
+          type: Database["public"]["Enums"]["followup_type"]
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          assigned_to: string
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_at: string
+          id?: string
+          lead_id?: string | null
+          status?: Database["public"]["Enums"]["followup_status"]
+          title: string
+          type?: Database["public"]["Enums"]["followup_type"]
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          assigned_to?: string
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_at?: string
+          id?: string
+          lead_id?: string | null
+          status?: Database["public"]["Enums"]["followup_status"]
+          title?: string
+          type?: Database["public"]["Enums"]["followup_type"]
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "followups_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "followups_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_assignments: {
         Row: {
           assigned_by: string | null
@@ -285,6 +348,53 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          is_read: boolean
+          link: string | null
+          metadata: Json | null
+          title: string
+          type: string
+          user_id: string
+          workspace_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          link?: string | null
+          metadata?: Json | null
+          title: string
+          type: string
+          user_id: string
+          workspace_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          link?: string | null
+          metadata?: Json | null
+          title?: string
+          type?: string
+          user_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pipeline_stages: {
         Row: {
           color: string | null
@@ -419,6 +529,53 @@ export type Database = {
         }
         Relationships: []
       }
+      workspace_invites: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string | null
+          role: Database["public"]["Enums"]["workspace_role"]
+          status: Database["public"]["Enums"]["invite_status"]
+          token: string
+          workspace_id: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by?: string | null
+          role?: Database["public"]["Enums"]["workspace_role"]
+          status?: Database["public"]["Enums"]["invite_status"]
+          token?: string
+          workspace_id: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string | null
+          role?: Database["public"]["Enums"]["workspace_role"]
+          status?: Database["public"]["Enums"]["invite_status"]
+          token?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_invites_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workspace_members: {
         Row: {
           created_at: string
@@ -486,6 +643,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_workspace_invite: { Args: { _token: string }; Returns: string }
       can_edit_workspace: {
         Args: { _user_id: string; _workspace_id: string }
         Returns: boolean
@@ -509,6 +667,10 @@ export type Database = {
         Args: { _user_id: string; _workspace_id: string }
         Returns: boolean
       }
+      next_round_robin_assignee: {
+        Args: { _workspace_id: string }
+        Returns: string
+      }
       workspace_role_of: {
         Args: { _user_id: string; _workspace_id: string }
         Returns: Database["public"]["Enums"]["workspace_role"]
@@ -516,6 +678,9 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "owner" | "staff"
+      followup_status: "pending" | "completed" | "cancelled"
+      followup_type: "whatsapp" | "call" | "email" | "meeting" | "other"
+      invite_status: "pending" | "accepted" | "revoked" | "expired"
       lead_priority: "low" | "medium" | "high"
       lead_source_type:
         | "manual"
@@ -652,6 +817,9 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "owner", "staff"],
+      followup_status: ["pending", "completed", "cancelled"],
+      followup_type: ["whatsapp", "call", "email", "meeting", "other"],
+      invite_status: ["pending", "accepted", "revoked", "expired"],
       lead_priority: ["low", "medium", "high"],
       lead_source_type: [
         "manual",
