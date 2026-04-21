@@ -99,7 +99,7 @@ export function LeadDetailSheet({ leadId, open, onOpenChange, onChanged }: Props
   async function load() {
     if (!leadId || !currentWorkspace) return;
     setLoading(true);
-    const [{ data: l }, { data: st }, { data: ns }, { data: ac }] = await Promise.all([
+    const [{ data: l }, { data: st }, { data: ns }, { data: ac }, { data: mem }, { data: asg }, { data: fups }] = await Promise.all([
       supabase.from("leads").select("*").eq("id", leadId).maybeSingle(),
       supabase
         .from("pipeline_stages")
@@ -117,10 +117,29 @@ export function LeadDetailSheet({ leadId, open, onOpenChange, onChanged }: Props
         .eq("lead_id", leadId)
         .order("created_at", { ascending: false })
         .limit(50),
+      supabase
+        .from("workspace_members")
+        .select("user_id, role")
+        .eq("workspace_id", currentWorkspace.id)
+        .eq("is_active", true)
+        .in("role", ["admin", "agent"]),
+      supabase
+        .from("lead_assignments")
+        .select("assigned_to")
+        .eq("lead_id", leadId)
+        .eq("is_active", true)
+        .maybeSingle(),
+      supabase
+        .from("followups")
+        .select("*")
+        .eq("lead_id", leadId)
+        .order("due_at", { ascending: true }),
     ]);
 
     setLead((l as LeadFull) ?? null);
     setStages((st ?? []).map((s) => ({ id: s.id, name: s.name, color: s.color })));
+    setAssignedTo((asg as any)?.assigned_to ?? null);
+    setFollowups((fups ?? []) as Followup[]);
 
     if (l?.source_id) {
       const { data: src } = await supabase.from("lead_sources").select("name").eq("id", l.source_id).maybeSingle();
@@ -129,10 +148,11 @@ export function LeadDetailSheet({ leadId, open, onOpenChange, onChanged }: Props
       setSourceName("");
     }
 
-    // resolve author/actor names
+    const memberIds = (mem ?? []).map((m) => m.user_id);
     const userIds = Array.from(new Set([
       ...(ns ?? []).map((n) => n.author_id).filter(Boolean) as string[],
       ...(ac ?? []).map((a) => a.actor_id).filter(Boolean) as string[],
+      ...memberIds,
     ]));
     let nameMap: Record<string, string> = {};
     if (userIds.length) {
@@ -140,9 +160,36 @@ export function LeadDetailSheet({ leadId, open, onOpenChange, onChanged }: Props
       nameMap = Object.fromEntries((profs ?? []).map((p) => [p.id, p.full_name || p.email || "User"]));
     }
 
+    setMembers(memberIds.map((id) => ({ user_id: id, name: nameMap[id] ?? "User" })));
     setNotes((ns ?? []).map((n) => ({ ...n, author_name: n.author_id ? nameMap[n.author_id] : "Unknown" })));
     setActivities((ac ?? []).map((a) => ({ ...a, actor_name: a.actor_id ? nameMap[a.actor_id] : "System" })));
     setLoading(false);
+  }
+
+  async function handleAssign(userId: string) {
+    if (!lead || !user) return;
+    try {
+      await assignManual(lead.workspace_id, lead.id, userId, user.id);
+      toast.success("Assigned");
+      void load();
+      onChanged?.();
+    } catch (e: any) { toast.error(e.message); }
+  }
+
+  async function handleRoundRobin() {
+    if (!lead || !user) return;
+    try {
+      const target = await assignRoundRobin(lead.workspace_id, lead.id, user.id);
+      const name = members.find((m) => m.user_id === target)?.name ?? "agent";
+      toast.success(`Auto-assigned to ${name}`);
+      void load();
+      onChanged?.();
+    } catch (e: any) { toast.error(e.message); }
+  }
+
+  async function handleCompleteFollowup(id: string) {
+    try { await completeFollowup(id); toast.success("Done"); void load(); }
+    catch (e: any) { toast.error(e.message); }
   }
 
   async function handleStageChange(newStageId: string) {
