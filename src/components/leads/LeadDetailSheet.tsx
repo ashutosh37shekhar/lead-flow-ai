@@ -390,6 +390,12 @@ export function LeadDetailSheet({ leadId, open, onOpenChange, onChanged }: Props
           </>
         )}
       </SheetContent>
+      <FollowupDialog
+        open={followupOpen}
+        onOpenChange={setFollowupOpen}
+        defaultLeadId={lead?.id ?? null}
+        onCreated={load}
+      />
     </Sheet>
   );
 }
