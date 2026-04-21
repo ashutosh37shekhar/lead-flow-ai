@@ -1,28 +1,26 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Loader2, Mail, Phone, MapPin, Briefcase, Tag, Activity, MessageSquare, Send } from "lucide-react";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
+  Loader2, Mail, Phone, MapPin, Briefcase, Tag, Activity, MessageSquare, Send,
+  Shuffle, CalendarClock, CheckCircle2, Plus,
+} from "lucide-react";
+import {
+  Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import { updateLeadStage } from "@/lib/leads";
+import { assignManual, assignRoundRobin } from "@/lib/team";
+import { completeFollowup, formatDue, isOverdue, type Followup } from "@/lib/followups";
+import { FollowupDialog } from "@/components/followups/FollowupDialog";
 import { cn } from "@/lib/utils";
 
 interface Props {
