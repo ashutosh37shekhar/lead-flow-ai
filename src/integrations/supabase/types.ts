@@ -125,6 +125,77 @@ export type Database = {
           },
         ]
       }
+      integrations: {
+        Row: {
+          access_token: string | null
+          config: Json
+          created_at: string
+          created_by: string | null
+          external_account_id: string | null
+          external_account_name: string | null
+          id: string
+          is_active: boolean
+          last_error: string | null
+          last_synced_at: string | null
+          provider: Database["public"]["Enums"]["integration_provider"]
+          refresh_token: string | null
+          token_expires_at: string | null
+          updated_at: string
+          webhook_secret: string | null
+          webhook_url: string | null
+          webhook_verify_token: string | null
+          workspace_id: string
+        }
+        Insert: {
+          access_token?: string | null
+          config?: Json
+          created_at?: string
+          created_by?: string | null
+          external_account_id?: string | null
+          external_account_name?: string | null
+          id?: string
+          is_active?: boolean
+          last_error?: string | null
+          last_synced_at?: string | null
+          provider: Database["public"]["Enums"]["integration_provider"]
+          refresh_token?: string | null
+          token_expires_at?: string | null
+          updated_at?: string
+          webhook_secret?: string | null
+          webhook_url?: string | null
+          webhook_verify_token?: string | null
+          workspace_id: string
+        }
+        Update: {
+          access_token?: string | null
+          config?: Json
+          created_at?: string
+          created_by?: string | null
+          external_account_id?: string | null
+          external_account_name?: string | null
+          id?: string
+          is_active?: boolean
+          last_error?: string | null
+          last_synced_at?: string | null
+          provider?: Database["public"]["Enums"]["integration_provider"]
+          refresh_token?: string | null
+          token_expires_at?: string | null
+          updated_at?: string
+          webhook_secret?: string | null
+          webhook_url?: string | null
+          webhook_verify_token?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integrations_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_assignments: {
         Row: {
           assigned_by: string | null
@@ -348,6 +419,63 @@ export type Database = {
           },
         ]
       }
+      meta_pages: {
+        Row: {
+          access_token: string | null
+          created_at: string
+          forms_count: number
+          id: string
+          integration_id: string
+          is_subscribed: boolean
+          last_sync_at: string | null
+          page_id: string
+          page_name: string | null
+          platform: string
+          workspace_id: string
+        }
+        Insert: {
+          access_token?: string | null
+          created_at?: string
+          forms_count?: number
+          id?: string
+          integration_id: string
+          is_subscribed?: boolean
+          last_sync_at?: string | null
+          page_id: string
+          page_name?: string | null
+          platform?: string
+          workspace_id: string
+        }
+        Update: {
+          access_token?: string | null
+          created_at?: string
+          forms_count?: number
+          id?: string
+          integration_id?: string
+          is_subscribed?: boolean
+          last_sync_at?: string | null
+          page_id?: string
+          page_name?: string | null
+          platform?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meta_pages_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meta_pages_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           body: string | null
@@ -529,6 +657,116 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_events: {
+        Row: {
+          attempts: number
+          created_at: string
+          event_type: string
+          http_status: number | null
+          id: string
+          last_attempt_at: string | null
+          payload: Json
+          response_body: string | null
+          status: string
+          target_url: string
+          workspace_id: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          event_type: string
+          http_status?: number | null
+          id?: string
+          last_attempt_at?: string | null
+          payload: Json
+          response_body?: string | null
+          status?: string
+          target_url: string
+          workspace_id: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          event_type?: string
+          http_status?: number | null
+          id?: string
+          last_attempt_at?: string | null
+          payload?: Json
+          response_body?: string | null
+          status?: string
+          target_url?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_events_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_messages: {
+        Row: {
+          body: string | null
+          created_at: string
+          direction: string
+          from_phone: string | null
+          id: string
+          lead_id: string | null
+          message_type: string | null
+          raw_payload: Json | null
+          status: string | null
+          to_phone: string | null
+          wa_message_id: string | null
+          workspace_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          direction: string
+          from_phone?: string | null
+          id?: string
+          lead_id?: string | null
+          message_type?: string | null
+          raw_payload?: Json | null
+          status?: string | null
+          to_phone?: string | null
+          wa_message_id?: string | null
+          workspace_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          direction?: string
+          from_phone?: string | null
+          id?: string
+          lead_id?: string | null
+          message_type?: string | null
+          raw_payload?: Json | null
+          status?: string | null
+          to_phone?: string | null
+          wa_message_id?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_messages_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "whatsapp_messages_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workspace_invites: {
         Row: {
           accepted_at: string | null
@@ -680,6 +918,11 @@ export type Database = {
       app_role: "admin" | "owner" | "staff"
       followup_status: "pending" | "completed" | "cancelled"
       followup_type: "whatsapp" | "call" | "email" | "meeting" | "other"
+      integration_provider:
+        | "meta_facebook"
+        | "meta_instagram"
+        | "whatsapp_cloud"
+        | "n8n"
       invite_status: "pending" | "accepted" | "revoked" | "expired"
       lead_priority: "low" | "medium" | "high"
       lead_source_type:
@@ -819,6 +1062,12 @@ export const Constants = {
       app_role: ["admin", "owner", "staff"],
       followup_status: ["pending", "completed", "cancelled"],
       followup_type: ["whatsapp", "call", "email", "meeting", "other"],
+      integration_provider: [
+        "meta_facebook",
+        "meta_instagram",
+        "whatsapp_cloud",
+        "n8n",
+      ],
       invite_status: ["pending", "accepted", "revoked", "expired"],
       lead_priority: ["low", "medium", "high"],
       lead_source_type: [
