@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import {
   LayoutDashboard, Users, Inbox, KanbanSquare, Bell, CalendarClock,
-  Settings, BarChart3, Plug, Bot, UserPlus, Zap, ChevronLeft, ChevronRight, LogOut,
+  Settings, BarChart3, Plug, Bot, UserPlus, Zap, ChevronLeft, ChevronRight, LogOut, Activity,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -16,6 +16,7 @@ const navItems = [
   { label: "Meta Integration", to: "/dashboard/meta", icon: Plug },
   { label: "Automations", to: "/dashboard/automations", icon: Bot },
   { label: "Analytics", to: "/dashboard/analytics", icon: BarChart3 },
+  { label: "Activity", to: "/dashboard/activity", icon: Activity },
   { label: "Settings", to: "/dashboard/settings", icon: Settings },
 ];
 
