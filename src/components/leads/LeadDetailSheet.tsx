@@ -1,28 +1,26 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Loader2, Mail, Phone, MapPin, Briefcase, Tag, Activity, MessageSquare, Send } from "lucide-react";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
+  Loader2, Mail, Phone, MapPin, Briefcase, Tag, Activity, MessageSquare, Send,
+  Shuffle, CalendarClock, CheckCircle2, Plus,
+} from "lucide-react";
+import {
+  Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import { updateLeadStage } from "@/lib/leads";
+import { assignManual, assignRoundRobin } from "@/lib/team";
+import { completeFollowup, formatDue, isOverdue, type Followup } from "@/lib/followups";
+import { FollowupDialog } from "@/components/followups/FollowupDialog";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -73,9 +71,12 @@ const priorityColors: Record<string, string> = {
   high: "bg-destructive/15 text-destructive",
 };
 
+interface Member { user_id: string; name: string; }
+interface FollowupRow extends Followup { /* */ }
+
 export function LeadDetailSheet({ leadId, open, onOpenChange, onChanged }: Props) {
   const { user } = useAuth();
-  const { currentWorkspace, canEdit } = useWorkspace();
+  const { currentWorkspace, canEdit, isAdmin } = useWorkspace();
   const [lead, setLead] = useState<LeadFull | null>(null);
   const [stages, setStages] = useState<{ id: string; name: string; color: string | null }[]>([]);
   const [sourceName, setSourceName] = useState<string>("");
@@ -84,6 +85,10 @@ export function LeadDetailSheet({ leadId, open, onOpenChange, onChanged }: Props
   const [newNote, setNewNote] = useState("");
   const [loading, setLoading] = useState(false);
   const [savingNote, setSavingNote] = useState(false);
+  const [members, setMembers] = useState<Member[]>([]);
+  const [assignedTo, setAssignedTo] = useState<string | null>(null);
+  const [followups, setFollowups] = useState<FollowupRow[]>([]);
+  const [followupOpen, setFollowupOpen] = useState(false);
 
   useEffect(() => {
     if (!open || !leadId || !currentWorkspace) return;
@@ -94,7 +99,7 @@ export function LeadDetailSheet({ leadId, open, onOpenChange, onChanged }: Props
   async function load() {
     if (!leadId || !currentWorkspace) return;
     setLoading(true);
-    const [{ data: l }, { data: st }, { data: ns }, { data: ac }] = await Promise.all([
+    const [{ data: l }, { data: st }, { data: ns }, { data: ac }, { data: mem }, { data: asg }, { data: fups }] = await Promise.all([
       supabase.from("leads").select("*").eq("id", leadId).maybeSingle(),
       supabase
         .from("pipeline_stages")
@@ -112,10 +117,29 @@ export function LeadDetailSheet({ leadId, open, onOpenChange, onChanged }: Props
         .eq("lead_id", leadId)
         .order("created_at", { ascending: false })
         .limit(50),
+      supabase
+        .from("workspace_members")
+        .select("user_id, role")
+        .eq("workspace_id", currentWorkspace.id)
+        .eq("is_active", true)
+        .in("role", ["admin", "agent"]),
+      supabase
+        .from("lead_assignments")
+        .select("assigned_to")
+        .eq("lead_id", leadId)
+        .eq("is_active", true)
+        .maybeSingle(),
+      supabase
+        .from("followups")
+        .select("*")
+        .eq("lead_id", leadId)
+        .order("due_at", { ascending: true }),
     ]);
 
     setLead((l as LeadFull) ?? null);
     setStages((st ?? []).map((s) => ({ id: s.id, name: s.name, color: s.color })));
+    setAssignedTo((asg as any)?.assigned_to ?? null);
+    setFollowups((fups ?? []) as Followup[]);
 
     if (l?.source_id) {
       const { data: src } = await supabase.from("lead_sources").select("name").eq("id", l.source_id).maybeSingle();
@@ -124,10 +148,11 @@ export function LeadDetailSheet({ leadId, open, onOpenChange, onChanged }: Props
       setSourceName("");
     }
 
-    // resolve author/actor names
+    const memberIds = (mem ?? []).map((m) => m.user_id);
     const userIds = Array.from(new Set([
       ...(ns ?? []).map((n) => n.author_id).filter(Boolean) as string[],
       ...(ac ?? []).map((a) => a.actor_id).filter(Boolean) as string[],
+      ...memberIds,
     ]));
     let nameMap: Record<string, string> = {};
     if (userIds.length) {
@@ -135,9 +160,36 @@ export function LeadDetailSheet({ leadId, open, onOpenChange, onChanged }: Props
       nameMap = Object.fromEntries((profs ?? []).map((p) => [p.id, p.full_name || p.email || "User"]));
     }
 
+    setMembers(memberIds.map((id) => ({ user_id: id, name: nameMap[id] ?? "User" })));
     setNotes((ns ?? []).map((n) => ({ ...n, author_name: n.author_id ? nameMap[n.author_id] : "Unknown" })));
     setActivities((ac ?? []).map((a) => ({ ...a, actor_name: a.actor_id ? nameMap[a.actor_id] : "System" })));
     setLoading(false);
+  }
+
+  async function handleAssign(userId: string) {
+    if (!lead || !user) return;
+    try {
+      await assignManual(lead.workspace_id, lead.id, userId, user.id);
+      toast.success("Assigned");
+      void load();
+      onChanged?.();
+    } catch (e: any) { toast.error(e.message); }
+  }
+
+  async function handleRoundRobin() {
+    if (!lead || !user) return;
+    try {
+      const target = await assignRoundRobin(lead.workspace_id, lead.id, user.id);
+      const name = members.find((m) => m.user_id === target)?.name ?? "agent";
+      toast.success(`Auto-assigned to ${name}`);
+      void load();
+      onChanged?.();
+    } catch (e: any) { toast.error(e.message); }
+  }
+
+  async function handleCompleteFollowup(id: string) {
+    try { await completeFollowup(id); toast.success("Done"); void load(); }
+    catch (e: any) { toast.error(e.message); }
   }
 
   async function handleStageChange(newStageId: string) {
@@ -205,14 +257,32 @@ export function LeadDetailSheet({ leadId, open, onOpenChange, onChanged }: Props
               </div>
 
               {canEdit && (
-                <div className="mt-4">
-                  <label className="text-xs text-muted-foreground mb-1 block">Stage</label>
-                  <Select value={lead.stage_id ?? ""} onValueChange={handleStageChange}>
-                    <SelectTrigger><SelectValue placeholder="No stage" /></SelectTrigger>
-                    <SelectContent>
-                      {stages.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                <div className="mt-4 space-y-3">
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Stage</label>
+                    <Select value={lead.stage_id ?? ""} onValueChange={handleStageChange}>
+                      <SelectTrigger><SelectValue placeholder="No stage" /></SelectTrigger>
+                      <SelectContent>
+                        {stages.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Assigned to</label>
+                    <div className="flex gap-2">
+                      <Select value={assignedTo ?? ""} onValueChange={handleAssign}>
+                        <SelectTrigger><SelectValue placeholder="Unassigned" /></SelectTrigger>
+                        <SelectContent>
+                          {members.map((m) => <SelectItem key={m.user_id} value={m.user_id}>{m.name}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                      {isAdmin && (
+                        <Button variant="outline" size="icon" onClick={handleRoundRobin} title="Auto-assign (round-robin)">
+                          <Shuffle className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
             </SheetHeader>
@@ -236,6 +306,7 @@ export function LeadDetailSheet({ leadId, open, onOpenChange, onChanged }: Props
               <Tabs defaultValue="notes">
                 <TabsList className="w-full">
                   <TabsTrigger value="notes" className="flex-1"><MessageSquare className="h-3.5 w-3.5 mr-1" /> Notes</TabsTrigger>
+                  <TabsTrigger value="followups" className="flex-1"><CalendarClock className="h-3.5 w-3.5 mr-1" /> Follow-ups</TabsTrigger>
                   <TabsTrigger value="activity" className="flex-1"><Activity className="h-3.5 w-3.5 mr-1" /> Activity</TabsTrigger>
                 </TabsList>
 
@@ -266,6 +337,40 @@ export function LeadDetailSheet({ leadId, open, onOpenChange, onChanged }: Props
                   </div>
                 </TabsContent>
 
+                <TabsContent value="followups" className="space-y-2 mt-4">
+                  {canEdit && (
+                    <Button size="sm" variant="outline" onClick={() => setFollowupOpen(true)} className="w-full">
+                      <Plus className="h-4 w-4" /> New follow-up
+                    </Button>
+                  )}
+                  {followups.length === 0 && <p className="text-xs text-muted-foreground">No follow-ups</p>}
+                  {followups.map((f) => {
+                    const overdue = isOverdue(f);
+                    return (
+                      <div key={f.id} className={cn(
+                        "flex items-center gap-2 rounded-lg border p-2.5",
+                        overdue && "border-destructive/30 bg-destructive/5",
+                        f.status === "completed" && "opacity-60",
+                      )}>
+                        <CalendarClock className={cn("h-4 w-4 shrink-0", overdue ? "text-destructive" : "text-muted-foreground")} />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm truncate">{f.title}</div>
+                          <div className="text-[10px] text-muted-foreground">
+                            {formatDue(f.due_at)} · {f.type}
+                            {overdue && " · Overdue"}
+                            {f.status === "completed" && " · Done"}
+                          </div>
+                        </div>
+                        {f.status === "pending" && (
+                          <Button size="icon" variant="ghost" onClick={() => handleCompleteFollowup(f.id)}>
+                            <CheckCircle2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </TabsContent>
+
                 <TabsContent value="activity" className="space-y-2 mt-4">
                   {activities.length === 0 && <p className="text-xs text-muted-foreground">No activity</p>}
                   {activities.map((a) => (
@@ -285,6 +390,12 @@ export function LeadDetailSheet({ leadId, open, onOpenChange, onChanged }: Props
           </>
         )}
       </SheetContent>
+      <FollowupDialog
+        open={followupOpen}
+        onOpenChange={setFollowupOpen}
+        defaultLeadId={lead?.id ?? null}
+        onCreated={load}
+      />
     </Sheet>
   );
 }
