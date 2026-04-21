@@ -257,14 +257,32 @@ export function LeadDetailSheet({ leadId, open, onOpenChange, onChanged }: Props
               </div>
 
               {canEdit && (
-                <div className="mt-4">
-                  <label className="text-xs text-muted-foreground mb-1 block">Stage</label>
-                  <Select value={lead.stage_id ?? ""} onValueChange={handleStageChange}>
-                    <SelectTrigger><SelectValue placeholder="No stage" /></SelectTrigger>
-                    <SelectContent>
-                      {stages.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                <div className="mt-4 space-y-3">
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Stage</label>
+                    <Select value={lead.stage_id ?? ""} onValueChange={handleStageChange}>
+                      <SelectTrigger><SelectValue placeholder="No stage" /></SelectTrigger>
+                      <SelectContent>
+                        {stages.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Assigned to</label>
+                    <div className="flex gap-2">
+                      <Select value={assignedTo ?? ""} onValueChange={handleAssign}>
+                        <SelectTrigger><SelectValue placeholder="Unassigned" /></SelectTrigger>
+                        <SelectContent>
+                          {members.map((m) => <SelectItem key={m.user_id} value={m.user_id}>{m.name}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                      {isAdmin && (
+                        <Button variant="outline" size="icon" onClick={handleRoundRobin} title="Auto-assign (round-robin)">
+                          <Shuffle className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
             </SheetHeader>
@@ -288,6 +306,7 @@ export function LeadDetailSheet({ leadId, open, onOpenChange, onChanged }: Props
               <Tabs defaultValue="notes">
                 <TabsList className="w-full">
                   <TabsTrigger value="notes" className="flex-1"><MessageSquare className="h-3.5 w-3.5 mr-1" /> Notes</TabsTrigger>
+                  <TabsTrigger value="followups" className="flex-1"><CalendarClock className="h-3.5 w-3.5 mr-1" /> Follow-ups</TabsTrigger>
                   <TabsTrigger value="activity" className="flex-1"><Activity className="h-3.5 w-3.5 mr-1" /> Activity</TabsTrigger>
                 </TabsList>
 
