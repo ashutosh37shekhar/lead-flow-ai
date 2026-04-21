@@ -71,9 +71,12 @@ const priorityColors: Record<string, string> = {
   high: "bg-destructive/15 text-destructive",
 };
 
+interface Member { user_id: string; name: string; }
+interface FollowupRow extends Followup { /* */ }
+
 export function LeadDetailSheet({ leadId, open, onOpenChange, onChanged }: Props) {
   const { user } = useAuth();
-  const { currentWorkspace, canEdit } = useWorkspace();
+  const { currentWorkspace, canEdit, isAdmin } = useWorkspace();
   const [lead, setLead] = useState<LeadFull | null>(null);
   const [stages, setStages] = useState<{ id: string; name: string; color: string | null }[]>([]);
   const [sourceName, setSourceName] = useState<string>("");
@@ -82,6 +85,10 @@ export function LeadDetailSheet({ leadId, open, onOpenChange, onChanged }: Props
   const [newNote, setNewNote] = useState("");
   const [loading, setLoading] = useState(false);
   const [savingNote, setSavingNote] = useState(false);
+  const [members, setMembers] = useState<Member[]>([]);
+  const [assignedTo, setAssignedTo] = useState<string | null>(null);
+  const [followups, setFollowups] = useState<FollowupRow[]>([]);
+  const [followupOpen, setFollowupOpen] = useState(false);
 
   useEffect(() => {
     if (!open || !leadId || !currentWorkspace) return;
