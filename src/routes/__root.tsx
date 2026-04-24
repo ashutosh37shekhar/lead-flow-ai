@@ -36,6 +36,12 @@ export const Route = createRootRoute({
       { name: "author", content: "Lead Flow AI" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:title", content: "Lead Flow AI – AI-Powered Meta Lead Management" },
+      { name: "twitter:title", content: "Lead Flow AI – AI-Powered Meta Lead Management" },
+      { property: "og:description", content: "Capture, organize & convert Meta leads faster with AI-powered automation." },
+      { name: "twitter:description", content: "Capture, organize & convert Meta leads faster with AI-powered automation." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/346ed53c-203a-41b4-a91a-a8704917f298/id-preview-b42d56ab--acc58146-0d48-4040-a8af-3069fbd75a29.lovable.app-1776740734567.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/346ed53c-203a-41b4-a91a-a8704917f298/id-preview-b42d56ab--acc58146-0d48-4040-a8af-3069fbd75a29.lovable.app-1776740734567.png" },
     ],
     links: [
       {
